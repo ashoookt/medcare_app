@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: PatientRecordsScreen(),
-    ),
-  );
-}
-
 class PatientRecordsScreen extends StatelessWidget {
   const PatientRecordsScreen({super.key});
 
@@ -19,7 +10,6 @@ class PatientRecordsScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Curved green background at the top
             Positioned(
               top: 0,
               left: 0,
@@ -56,68 +46,69 @@ class PatientRecordsScreen extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      const SizedBox(
-                        width: 24,
-                      ), // To balance back button spacing
+                      const SizedBox(width: 24), // To balance back button spacing
                     ],
                   ),
                   const SizedBox(height: 30),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const Spacer(),
-                      Column(
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ), // Pushes the Scheduled button down
-                          GestureDetector(
-                            onTap: () => _showDateInputDialog(context),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.white24),
-                              ),
-                              child: Row(
-                                children: const [
-                                  Text(
-                                    "Scheduled",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  SizedBox(width: 6),
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                 // Avatar Row
+Row(
+  children: [
+    Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(
+        Icons.person,
+        color: Colors.white,
+        size: 40,
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 8),
+
+// Scheduled Button (aligned to right)
+Row(
+  mainAxisAlignment: MainAxisAlignment.end,
+  children: [
+    GestureDetector(
+      onTap: () => _showDateInputDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text(
+              "Scheduled",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(width: 6),
+            Icon(
+              Icons.calendar_today,
+              size: 16,
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+),
+const SizedBox(height: 1), // small spacing before Enter Name
+
                   const SizedBox(height: 30),
                   const CustomTextField(hint: "Enter Name"),
                   const CustomTextField(hint: "Enter Address"),
@@ -187,10 +178,7 @@ void _showDateInputDialog(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -233,10 +221,7 @@ class _DateField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
     );
   }
