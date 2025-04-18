@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'bottom_navbar.dart';
+import 'package:medcare/userProfile/settings_screen.dart';
+import 'scheds_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -10,7 +12,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> patients = [];
-  final List<Map<String, dynamic>> schedule = [];
+  List<Map<String, dynamic>> schedule =
+      []; // Declare this as a field to persist across navigation
 
   String selectedSort = 'Sort By';
   String selectedGender = 'All';
@@ -65,7 +68,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.settings, color: Colors.white),
+
+                  // Settings Button
+                  InkWell(
+                    onTap: () {
+                      // Pass the schedule to SettingsScreen to maintain data
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  SettingsScreen(notifications: schedule),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.settings, color: Colors.white),
+                  ),
                 ],
               ),
             ),
@@ -92,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
                 children: [
-                  // Sort By Dropdown
                   PopupMenuButton<String>(
                     offset: const Offset(0, 40),
                     onSelected: (String value) {
@@ -145,7 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Patient List or "No patient"
-            Expanded(
+            Flexible(
+              flex: 1,
               child:
                   patients.isEmpty
                       ? const Center(
@@ -194,61 +212,103 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.edit, color: Colors.white),
+                  InkWell(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ScheduleScreen(),
+                        ),
+                      );
+
+                      if (result != null && result is Map<String, dynamic>) {
+                        setState(() {
+                          schedule.add(result); // Add new schedule to the list
+                        });
+                      }
+                    },
+                    child: const Icon(Icons.edit, color: Colors.white),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 10),
 
             // Schedule or "No schedule"
-            Container(
-              height: 150,
-              child:
-                  schedule.isEmpty
-                      ? const Center(
-                        child: Text(
-                          'No schedule available.',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
+            Flexible(
+              flex: 1,
+              child: SingleChildScrollView(
+                child:
+                    schedule.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'No schedule available.',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
+                        )
+                        : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: schedule.length,
+                          itemBuilder: (context, index) {
+                            final item = schedule[index];
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.teal[300],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['title'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${item['date']} | ${item['startTime']} - ${item['endTime']}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  if (item['notes'] != null &&
+                                      item['notes'].trim().isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Text(
+                                        item['notes'],
+                                        style: const TextStyle(
+                                          color: Colors.white60,
+                                          fontSize: 13,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      )
-                      : ListView.builder(
-                        itemCount: schedule.length,
-                        itemBuilder: (context, index) {
-                          final item = schedule[index];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.teal[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              item['title'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        },
-                      ),
+              ),
             ),
           ],
         ),
       ),
       bottomNavigationBar: const BottomNavbar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add new patient or schedule
-        },
-        backgroundColor: Colors.white,
-        child: const Icon(Icons.add, color: Color(0xFF0F2D1E)),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

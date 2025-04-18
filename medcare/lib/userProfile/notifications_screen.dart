@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+  final List<Map<String, String>> notifications;
+
+  const NotificationsScreen({
+    super.key,
+    this.notifications = const [], // Optional with default empty list
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,6 @@ class NotificationsScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 60),
-            // Back + Centered Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Stack(
@@ -54,22 +58,48 @@ class NotificationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Spacer to push message to center
-            const Spacer(),
-
-            const Center(
-              child: Text(
-                'No notifications listed.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
+            const SizedBox(height: 20),
+            Expanded(
+              child:
+                  notifications.isEmpty
+                      ? const Center(
+                        child: Text(
+                          'No notifications listed.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      )
+                      : ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: notifications.length,
+                        itemBuilder: (context, index) {
+                          final item = notifications[index];
+                          return Card(
+                            color: Colors.white10,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            margin: const EdgeInsets.only(bottom: 15),
+                            child: ListTile(
+                              title: Text(
+                                item['title'] ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${item['date']} • ${item['startTime']} - ${item['endTime']}\n${item['notes']}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
             ),
-
-            const Spacer(),
           ],
         ),
       ),

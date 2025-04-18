@@ -26,14 +26,42 @@ class MedCareScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF27422E), // Dark Green (Top)
-                  Color(0xFF000000), // Black (Middle)
-                  Color(0xFF27422E), // Dark Green (Bottom)
+                  Color(0xFF4A4B4A),
+                  Color(0xFF18392B),
+                  Color(0xFF000000),
+                  Color(0xFF204C39),
+                  Color(0xFF295F48),
                 ],
-                stops: [0.0, 0.5, 1.0],
+                stops: [0.0, 0.14, 0.40, 0.70, 1.0],
+              ),
+            ),
+          ),
+          // LOGO
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 90),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Image(
+                    image: AssetImage('lib/images/logo.png'),
+                    width: 150,
+                    height: 150,
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    "Med-Care",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -63,20 +91,19 @@ class MedCareScreen extends StatelessWidget {
                         vertical: 8,
                       ),
                       child: Text(
-                        "Login to your account or sign up to get started.",
+                        "Login to your account or Sign up to enhance medical data management.",
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.black54),
                       ),
                     ),
                     const SizedBox(height: 25),
-                    // Login Button
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF27422E),
+                        backgroundColor: Color(0xFF27422E),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 120,
                           vertical: 15,
                         ),
@@ -95,17 +122,13 @@ class MedCareScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    // Sign Up Button (Navigates to SignupScreen)
                     OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: Color(0xFF27422E),
-                          width: 2,
-                        ),
+                        side: BorderSide(color: Color(0xFF27422E), width: 2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 110,
                           vertical: 15,
                         ),

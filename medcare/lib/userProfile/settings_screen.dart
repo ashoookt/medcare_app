@@ -3,10 +3,12 @@ import 'profile_screen.dart';
 import 'notifications_screen.dart';
 import 'termsService_screen.dart';
 import 'privacyPolicy_screen.dart';
+import 'package:medcare/features/home_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final List<Map<String, dynamic>> notifications;
 
+  const SettingsScreen({super.key, required this.notifications});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,19 +28,33 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 60),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'SETTINGS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.8,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  // Back Arrow Button
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      // Navigate back to HomeScreen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ),
+                      );
+                    },
                   ),
-                ),
+                  const Text(
+                    'SETTINGS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.8,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 30),

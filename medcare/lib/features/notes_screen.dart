@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'editnotes_screen.dart'; 
+import 'editnotes_screen.dart';
+import 'bottom_navbar.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -13,10 +14,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   void _addNote(String title, String content) {
     setState(() {
-      _notes.add({
-        'title': title,
-        'content': content,
-      });
+      _notes.add({'title': title, 'content': content});
     });
   }
 
@@ -25,6 +23,7 @@ class _NotesScreenState extends State<NotesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1A2A1D),
       body: HomeContent(notes: _notes, onNoteSaved: _addNote),
+      bottomNavigationBar: const BottomNavbar(), // Add the BottomNavbar here
     );
   }
 }
@@ -66,7 +65,11 @@ class HomeContent extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
                         Icon(Icons.menu, color: Colors.white, size: 30),
-                        Icon(Icons.notifications, color: Colors.white, size: 30),
+                        Icon(
+                          Icons.notifications,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ],
                     ),
                   ),
@@ -123,9 +126,9 @@ class HomeContent extends StatelessWidget {
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EditNotes(
-                                    onSaveNote: onNoteSaved,
-                                  ),
+                                  builder:
+                                      (context) =>
+                                          EditNotes(onSaveNote: onNoteSaved),
                                 ),
                               );
 
@@ -205,49 +208,46 @@ class HomeContent extends StatelessWidget {
           const SizedBox(height: 10),
           notes.isEmpty
               ? const Center(
-                  child: Text(
-                    "No notes yet. Add a note using the + button.",
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                )
+                child: Text(
+                  "No notes yet. Add a note using the + button.",
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              )
               : Expanded(
-                  child: Scrollbar(
-                    thumbVisibility: true,
-                    child: ListView.builder(
-                      itemCount: notes.length,
-                      itemBuilder: (context, index) {
-                        final note = notes[index];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              note['title']!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: ListView.builder(
+                    itemCount: notes.length,
+                    itemBuilder: (context, index) {
+                      final note = notes[index];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note['title']!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 5),
-                            Text(
-                              note['content']!,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            note['content']!,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
                             ),
-                            if (index < notes.length - 1)
-                              const Divider(
-                                color: Colors.white54,
-                                thickness: 1,
-                              ),
-                          ],
-                        );
-                      },
-                    ),
+                          ),
+                          if (index < notes.length - 1)
+                            const Divider(color: Colors.white54, thickness: 1),
+                        ],
+                      );
+                    },
                   ),
                 ),
+              ),
         ],
       ),
     );

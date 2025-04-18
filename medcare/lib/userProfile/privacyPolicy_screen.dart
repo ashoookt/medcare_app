@@ -60,7 +60,7 @@ class PrivacypolicyScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     '''1. Introduction    
-                    This Privacy Policy explains how the Nursing Documentation App collects, uses, and protects user data. By using the app, you consent to the collection and use of information as outlined in this policy.
+This Privacy Policy explains how the Nursing Documentation App collects, uses, and protects user data. By using the app, you consent to the collection and use of information as outlined in this policy.
 
 2. Information We Collect    
 We collect the following types of information:

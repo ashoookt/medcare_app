@@ -38,14 +38,25 @@ class SplashScreen extends StatelessWidget {
               colors: [Color(0xFF1B3C2D), Color(0xFF000000), Color(0xFF1B3C2D)],
             ),
           ),
-          child: const Center(
-            child: Text(
-              'Med-Care',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Image(
+                  image: AssetImage('lib/images/logo.png'),
+                  width: 200,
+                  height: 200,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Med-Care',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
