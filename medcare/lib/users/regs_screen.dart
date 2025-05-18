@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:medcare/users/login_screen.dart';
 import 'package:medcare/users/options_screen.dart';
 import 'package:medcare/users/signup_screen.dart';
@@ -14,12 +16,20 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   String? _gender;
 
+  // Controllers
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController studentIdController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController courseYearController = TextEditingController();
+  final TextEditingController contactNoController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Gradient
+          // Gradient Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -34,7 +44,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
 
-          // Content
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 80),
@@ -51,14 +60,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 25),
 
-                  _buildTextField('Lorma Email'),
-                  _buildTextField('Student ID'),
-                  _buildTextField('Full Name'),
-                  _buildTextField('Age'),
-                  _buildTextField('Course/Year Level'),
+                  _buildTextField('Lorma Email', emailController),
+                  _buildTextField('Student ID', studentIdController),
+                  _buildTextField('Full Name', fullNameController),
 
-                  // Gender Field Styled
-                  // Gender Field Styled - With "Gender:" on top
+                  // Age field with only numbers
+                  _buildTextField(
+                    'Age',
+                    ageController,
+                    inputType: TextInputType.number,
+                  ),
+
+                  _buildTextField('Course/Year Level', courseYearController),
+
+                  // Gender Field
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Container(
@@ -124,7 +139,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
 
-                  _buildTextField('Contact No'),
+                  _buildTextField(
+                    'Contact No',
+                    contactNoController,
+                    inputType: TextInputType.phone,
+                  ),
 
                   const SizedBox(height: 30),
 
@@ -139,14 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const OptionsUser(),
-                          ),
-                        );
-                      },
+                      onPressed: submitRegistration,
                       child: const Text(
                         'Register',
                         style: TextStyle(color: Colors.white, fontSize: 16),
@@ -156,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Already Registered? Login or Sign Up
+                  // Login or Sign Up Links
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: RichText(
@@ -218,34 +230,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void _showRegisterCompleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: const Text("Success!"),
-          content: const Text("Register Complete!"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/');
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildTextField(String hintText) {
+  Widget _buildTextField(
+    String hintText,
+    TextEditingController controller, {
+    TextInputType inputType = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextField(
+        controller: controller,
+        keyboardType: inputType,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,
@@ -263,5 +257,121 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  void _showRegisterCompleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text("Success!"),
+            content: const Text("Register Complete!"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OptionsUser(),
+                    ),
+                  );
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> submitRegistration() async {
+    final url = Uri.parse('http://192.168.100.224:8000/register');
+
+    if (studentIdController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        fullNameController.text.trim().isEmpty) {
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Validation Error"),
+              content: const Text(
+                "Student ID, Lorma Email, and Full Name are required.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+
+    Map<String, dynamic> body = {
+      "student_id": studentIdController.text.trim(),
+      "lorma_email": emailController.text.trim(),
+      "full_name": fullNameController.text.trim(),
+      "age":
+          ageController.text.trim().isNotEmpty
+              ? int.tryParse(ageController.text.trim())
+              : null,
+      "course_year": courseYearController.text.trim(),
+      "gender": _gender,
+      "contact_no": contactNoController.text.trim(),
+    };
+
+    body.removeWhere((key, value) => value == null || value == "");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showRegisterCompleteDialog(context);
+      } else {
+        final error = jsonDecode(response.body);
+        showDialog(
+          context: context,
+          builder:
+              (_) => AlertDialog(
+                title: const Text("Error"),
+                content: Text(
+                  error["detail"]?.toString() ?? "Something went wrong.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"),
+                  ),
+                ],
+              ),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Error"),
+              content: Text(
+                "Failed to connect to the server. Please try again.\n$e",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+    }
   }
 }

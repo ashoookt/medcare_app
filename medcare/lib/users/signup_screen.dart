@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'options_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -9,7 +11,18 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  bool isChecked = false; // For checkbox state
+  bool isChecked = false;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +36,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF1B3C2D), // Dark Green (Top)
-                  Color(0xFF000000), // Black (Middle)
-                  Color(0xFF1B3C2D), // Dark Green (Bottom)
+                  Color(0xFF1B3C2D),
+                  Color(0xFF000000),
+                  Color(0xFF1B3C2D),
                 ],
               ),
             ),
@@ -62,12 +75,21 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: 25),
 
                   // Input Fields
-                  _buildTextField(Icons.person, 'Enter your name'),
-                  _buildTextField(Icons.email, 'Enter your email'),
                   _buildTextField(
-                    Icons.lock,
-                    'Enter your password',
+                    icon: Icons.person,
+                    hintText: 'Enter your name',
+                    controller: nameController,
+                  ),
+                  _buildTextField(
+                    icon: Icons.email,
+                    hintText: 'Enter your email',
+                    controller: emailController,
+                  ),
+                  _buildTextField(
+                    icon: Icons.lock,
+                    hintText: 'Enter your password',
                     isPassword: true,
+                    controller: passwordController,
                   ),
 
                   const SizedBox(height: 10),
@@ -77,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     children: [
                       Checkbox(
                         value: isChecked,
-                        activeColor: const Color(0xFF1B3C2D), // Dark Green
+                        activeColor: const Color(0xFF1B3C2D),
                         onChanged: (value) {
                           setState(() {
                             isChecked = value!;
@@ -122,12 +144,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed:
-                          isChecked
-                              ? () {
-                                _showSignupCompleteDialog(context);
-                              }
-                              : null, // Disabled if not checked
+                      onPressed: isChecked ? _handleSignup : null,
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(color: Colors.white, fontSize: 16),
@@ -143,11 +160,83 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // Function to show the signup complete dialog
-  void _showSignupCompleteDialog(BuildContext context) {
+  // Custom method to create a styled text field with an icon
+  Widget _buildTextField({
+    required IconData icon,
+    required String hintText,
+    bool isPassword = false,
+    required TextEditingController controller,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.white70),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white70),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 14,
+          ),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.2),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Updated signup handler with backend POST request
+  void _handleSignup() async {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      _showErrorDialog("Please fill in all fields.");
+      return;
+    }
+
+    // Prepare the request payload — adjust field names as per your backend schema
+    final Map<String, dynamic> signupData = {
+      "student_id": '123456789',
+      "full_name": name,
+      "lorma_email": email,
+      "password": password,
+      // add other required fields here if needed
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.100.224:8000/signup'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(signupData),
+      );
+
+      if (response.statusCode == 200) {
+        _showSignupCompleteDialog();
+      } else {
+        // Try to parse error message from backend
+        final resBody = jsonDecode(response.body);
+        String errorMessage = resBody['detail'] ?? 'Signup failed';
+        _showErrorDialog(errorMessage);
+      }
+    } catch (e) {
+      _showErrorDialog("Failed to connect to the server. Please try again.");
+    }
+  }
+
+  // Success dialog
+  void _showSignupCompleteDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevents closing by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -176,14 +265,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B3C2D), // Dark Green
+                    backgroundColor: const Color(0xFF1B3C2D),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pop(context); // Close the dialog
+                    Navigator.pop(context);
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -204,33 +293,21 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // Custom method to create a styled text field with an icon
-  Widget _buildTextField(
-    IconData icon,
-    String hintText, {
-    bool isPassword = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        obscureText: isPassword,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white70),
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white70),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 14,
+  // Error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Error"),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
           ),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.2),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
-          ),
-        ),
-      ),
     );
   }
 }

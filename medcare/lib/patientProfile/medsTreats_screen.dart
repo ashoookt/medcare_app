@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class MedicationsApp extends StatelessWidget {
+class MedicationScreen extends StatelessWidget {
+  const MedicationScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,6 +20,8 @@ class MedicationsScreen extends StatelessWidget {
     'PRN Medications',
     'Treatments Administered',
   ];
+
+  MedicationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -58,44 +62,47 @@ class MedicationsScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: fields.asMap().entries.map<Widget>((entry) {
-                    int index = entry.key;
-                    String field = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          TextFormField(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: field,
-                              hintStyle: const TextStyle(
-                                color: Colors.black45,
-                                fontWeight: FontWeight.w500,
+                  children:
+                      fields.asMap().entries.map<Widget>((entry) {
+                        int index = entry.key;
+                        String field = entry.value;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Stack(
+                            alignment: Alignment.centerRight,
+                            children: [
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  hintText: field,
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black45,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 20),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
+                              if (index == 1)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 20),
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: 8,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                            ],
                           ),
-                          if (index == 1)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 20),
-                              child: Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: Colors.red,
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -111,8 +118,10 @@ class MedicationsScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
                   ),
                   child: const Text("Edit"),
                 ),
@@ -124,8 +133,10 @@ class MedicationsScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
                   ),
                   child: const Text("Delete"),
                 ),
@@ -141,12 +152,14 @@ class MedicationsScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 60),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 60,
+                  ),
                 ),
                 child: const Text("Save"),
               ),
-            )
+            ),
           ],
         ),
       ),

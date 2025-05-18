@@ -2,9 +2,26 @@ import 'package:flutter/material.dart';
 import 'signup_screen.dart';
 import 'package:medcare/reset/forgotpass_screen.dart';
 import 'package:medcare/features/home_screen.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +31,7 @@ class LoginScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF2E4B3B), // Dark green
-              Color(0xFF000000), // Black
-              Color(0xFF2E4B3B), // Dark green
-            ],
+            colors: [Color(0xFF2E4B3B), Color(0xFF000000), Color(0xFF2E4B3B)],
           ),
         ),
         child: Center(
@@ -27,7 +40,6 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Title
                 const Text(
                   "Login",
                   style: TextStyle(
@@ -37,9 +49,8 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Email Field
                 TextField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.email, color: Colors.grey),
                     hintText: "Enter your email",
@@ -52,9 +63,8 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-
-                // Password Field
                 TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock, color: Colors.grey),
@@ -75,8 +85,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -87,7 +95,7 @@ class LoginScreen extends StatelessWidget {
                           builder: (context) => const ForgotPasswordScreen(),
                         ),
                       );
-                    }, // Forgot Password Logic
+                    },
                     child: const Text(
                       "Forgot Password?",
                       style: TextStyle(color: Colors.white70),
@@ -95,8 +103,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Login Button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF27422E),
@@ -108,8 +114,45 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(50),
                     ),
                   ),
-                  onPressed: () {
-                    _showSuccessDialog(context);
+                  onPressed: () async {
+                    String email = _emailController.text.trim();
+                    String password = _passwordController.text.trim();
+
+                    try {
+                      final response = await http.post(
+                        Uri.parse('http://192.168.100.224:8000/login'),
+                        headers: {'Content-Type': 'application/json'},
+                        body: jsonEncode({
+                          'lorma_email': email,
+                          'password': password,
+                        }),
+                      );
+
+                      print("Response status: ${response.statusCode}");
+                      print("Response body: ${response.body}");
+
+                      if (response.statusCode == 200) {
+                        _showSuccessDialog(context);
+                      } else {
+                        try {
+                          final error = jsonDecode(response.body)['detail'];
+                          _showErrorDialog(
+                            context,
+                            error ?? "Invalid email or password.",
+                          );
+                        } catch (e) {
+                          _showErrorDialog(
+                            context,
+                            "Internal Server Error. Please try again later.",
+                          );
+                        }
+                      }
+                    } catch (e) {
+                      _showErrorDialog(
+                        context,
+                        "Network error. Please check your connection.",
+                      );
+                    }
                   },
                   child: const Text(
                     "Login",
@@ -117,8 +160,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -131,9 +172,7 @@ class LoginScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    const SignupScreen(), // Changed here
+                            builder: (context) => const SignupScreen(),
                           ),
                         );
                       },
@@ -152,7 +191,6 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  // Success Dialog Function
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -178,8 +216,6 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.black54),
               ),
               const SizedBox(height: 20),
-
-              // Go to Home Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -207,6 +243,23 @@ class LoginScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Login Failed"),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
     );
   }
 }

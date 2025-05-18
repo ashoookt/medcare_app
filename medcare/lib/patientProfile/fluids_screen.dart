@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 
-class VitalSignsApp extends StatelessWidget {
+class IVFluidScreen extends StatelessWidget {
+  const IVFluidScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: VitalSignsScreen(),
+      home: IVFluidScreen(),
     );
   }
 }
 
-class VitalSignsScreen extends StatelessWidget {
+class IVFluidScreens extends StatelessWidget {
   final List<String> fields = [
-    'Blood Pressure (BP)',
-    'Heart Rate (CR)',
-    'Respiratory Rate (RR)',
-    'Temperature (Tº)',
-    'Oxygen Saturation (SpO2)',
-    'Intake & Output (I & O) Monitoring',
+    'Type of IV Fluids & Rate',
+    'Volume Administered',
+    'Changes in IV Fluids',
   ];
+
+  IVFluidScreens({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF000000),
-              Color(0xFF1C3F2F),
-              Color(0xFF224932),
-            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
+            colors: [Color(0xFF000000), Color(0xFF1E3E30), Color(0xFF2B5942)],
           ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
@@ -48,12 +48,13 @@ class VitalSignsScreen extends StatelessWidget {
                     child: Icon(Icons.arrow_back, color: Colors.white),
                   ),
                   const Text(
-                    'Vital Signs & Monitoring',
+                    'Intravenous Fluids/Transfusion',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -62,28 +63,34 @@ class VitalSignsScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: fields
-                      .map((field) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: field,
-                                hintStyle: const TextStyle(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 16, horizontal: 20),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  borderSide: BorderSide.none,
+                  children:
+                      fields
+                          .map(
+                            (field) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  hintText: field,
+                                  hintStyle: const TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  isDense: true,
                                 ),
                               ),
                             ),
-                          ))
-                      .toList(),
+                          )
+                          .toList(),
                 ),
               ),
             ),
@@ -100,7 +107,9 @@ class VitalSignsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 30),
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
                   ),
                   child: const Text("Edit"),
                 ),
@@ -113,7 +122,9 @@ class VitalSignsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 30),
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
                   ),
                   child: const Text("Delete"),
                 ),
@@ -129,12 +140,14 @@ class VitalSignsScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 60),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 60,
+                  ),
                 ),
                 child: const Text("Save"),
               ),
-            )
+            ),
           ],
         ),
       ),
