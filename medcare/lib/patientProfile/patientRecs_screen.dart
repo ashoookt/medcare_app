@@ -1,8 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:medcare/features/home_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class PatientRecordsScreen extends StatelessWidget {
+class PatientRecordsScreen extends StatefulWidget {
   const PatientRecordsScreen({super.key});
+
+  @override
+  State<PatientRecordsScreen> createState() => _PatientRecordsScreenState();
+}
+
+class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
+  // Controllers for the input fields
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController genderController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController doctorController = TextEditingController();
+  final TextEditingController wardController = TextEditingController();
+
+  bool isLoading = false;
+
+  Future<void> savePatient() async {
+    final String apiUrl = 'http://192.168.100.224:8000/patients';
+
+    // Validate or parse inputs
+    if (nameController.text.isEmpty ||
+        addressController.text.isEmpty ||
+        genderController.text.isEmpty ||
+        ageController.text.isEmpty ||
+        doctorController.text.isEmpty ||
+        wardController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    final int? age = int.tryParse(ageController.text);
+    if (age == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Age must be a number')));
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final Map<String, dynamic> data = {
+      "patient_name": nameController.text,
+      "patient_address": addressController.text,
+      "patient_gender": genderController.text,
+      "patient_age": age,
+      "patient_doctor": doctorController.text,
+      "patient_ward": wardController.text,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Patient saved successfully')),
+        );
+        // Optionally clear fields
+        nameController.clear();
+        addressController.clear();
+        genderController.clear();
+        ageController.clear();
+        doctorController.clear();
+        wardController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save patient: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    addressController.dispose();
+    genderController.dispose();
+    ageController.dispose();
+    doctorController.dispose();
+    wardController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,18 +131,12 @@ class PatientRecordsScreen extends StatelessWidget {
             SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomeScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pop(context),
                         child: const Icon(
                           Icons.arrow_back,
                           color: Colors.white,
@@ -63,9 +155,9 @@ class PatientRecordsScreen extends StatelessWidget {
                       const SizedBox(width: 24),
                     ],
                   ),
-
                   const SizedBox(height: 30),
-                  // Avatar Row
+
+                  // Avatar
                   Row(
                     children: [
                       Container(
@@ -84,75 +176,67 @@ class PatientRecordsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Scheduled Button (aligned to right)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () => _showDateInputDialog(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text(
-                                "Scheduled",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              SizedBox(width: 6),
-                              Icon(
-                                Icons.calendar_today,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 1), // small spacing before Enter Name
+                  // Scheduled button (keep your original _showDateInputDialog here)
 
-                  const SizedBox(height: 30),
-                  const CustomTextField(hint: "Enter Name"),
-                  const CustomTextField(hint: "Enter Address"),
-                  const CustomTextField(hint: "Enter Gender"),
-                  const CustomTextField(hint: "Enter Age"),
-                  const CustomTextField(hint: "Doctor Appointed"),
-                  const CustomTextField(hint: "Patient room/ward"),
+                  // Your input fields with controllers:
+                  CustomTextField(
+                    controller: nameController,
+                    hint: "Enter Name",
+                  ),
+                  CustomTextField(
+                    controller: addressController,
+                    hint: "Enter Address",
+                  ),
+                  CustomTextField(
+                    controller: genderController,
+                    hint: "Enter Gender",
+                  ),
+                  CustomTextField(
+                    controller: ageController,
+                    hint: "Enter Age",
+                    keyboardType: TextInputType.number,
+                  ),
+                  CustomTextField(
+                    controller: doctorController,
+                    hint: "Doctor Appointed",
+                  ),
+                  CustomTextField(
+                    controller: wardController,
+                    hint: "Patient room/ward",
+                  ),
+
                   const SizedBox(height: 20),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
+                    children: [
                       RoundedButton(
                         text: "Edit",
                         color: Colors.white,
                         textColor: Colors.black,
+                        onPressed: () {
+                          // Add Edit functionality here if needed
+                        },
                       ),
                       RoundedButton(
                         text: "Delete",
                         color: Colors.white,
                         textColor: Colors.black,
+                        onPressed: () {
+                          // Add Delete functionality here if needed
+                        },
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 20),
-                  const RoundedButton(
-                    text: "Save",
+
+                  RoundedButton(
+                    text: isLoading ? "Saving..." : "Save",
                     color: Colors.black,
                     textColor: Colors.white,
                     fullWidth: true,
+                    onPressed: isLoading ? null : savePatient,
                   ),
                 ],
               ),
@@ -164,94 +248,18 @@ class PatientRecordsScreen extends StatelessWidget {
   }
 }
 
-// Show input dialog for date
-void _showDateInputDialog(BuildContext context) {
-  final monthController = TextEditingController();
-  final dayController = TextEditingController();
-  final yearController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF2E4740),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Set Schedule',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _DateField(controller: monthController, hint: 'MM'),
-            const SizedBox(height: 8),
-            _DateField(controller: dayController, hint: 'DD'),
-            const SizedBox(height: 8),
-            _DateField(controller: yearController, hint: 'YYYY'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              String scheduledDate =
-                  '${monthController.text}/${dayController.text}/${yearController.text}';
-              print('Scheduled: $scheduledDate');
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-            ),
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-// Custom date field for the dialog
-class _DateField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-
-  const _DateField({required this.controller, required this.hint});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white54),
-        filled: true,
-        fillColor: Colors.white10,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
-      ),
-    );
-  }
-}
-
+// Modified CustomTextField to accept a controller and keyboardType
 class CustomTextField extends StatelessWidget {
   final String hint;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
 
-  const CustomTextField({super.key, required this.hint});
+  const CustomTextField({
+    super.key,
+    required this.hint,
+    required this.controller,
+    this.keyboardType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +270,8 @@ class CustomTextField extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
       ),
       child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
@@ -281,6 +291,7 @@ class RoundedButton extends StatelessWidget {
   final Color color;
   final Color textColor;
   final bool fullWidth;
+  final VoidCallback? onPressed;
 
   const RoundedButton({
     super.key,
@@ -288,6 +299,7 @@ class RoundedButton extends StatelessWidget {
     required this.color,
     required this.textColor,
     this.fullWidth = false,
+    this.onPressed,
   });
 
   @override
@@ -296,7 +308,7 @@ class RoundedButton extends StatelessWidget {
       width: fullWidth ? double.infinity : 140,
       height: 45,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: textColor,

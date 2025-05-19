@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship
 from database import Base
 
 # Register table for full student information
@@ -26,3 +27,27 @@ class UserSignUp(Base):
     student_password = Column(String(255), nullable=False)
 
 
+class PatientRecords(Base):
+    __tablename__ = "patients"
+
+    id = Column(Integer, primary_key=True, index=True) 
+    patient_name = Column(String(100), nullable=False)
+    patient_address = Column(String(255), nullable=False)
+    patient_gender = Column(String(10), nullable=False)
+    patient_age = Column(Integer, nullable=False)
+    patient_doctor = Column(String(100), nullable=False)
+    patient_ward = Column(String(100), nullable=False)
+
+medical_history = relationship("PatientMedicalHistory", back_populates="patient")
+
+
+class PatientMedicalHistory(Base):
+    __tablename__ = "patientmedical"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_complaint = Column(Text, nullable=False)
+    patient_diagnostics = Column(Text, nullable=False)
+    patient_diet = Column(Text, nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
+
+medical_history = relationship("PatientMedicalHistory", back_populates="patient")

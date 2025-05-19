@@ -29,3 +29,33 @@ class UserSignUp(BaseModel):
 class LoginRequest(BaseModel):
     lorma_email: str  
     password: str
+
+class PatientCreate(BaseModel):
+    patient_name: str
+    patient_address: str
+    patient_gender: str
+    patient_age: int
+    patient_doctor: str
+    patient_ward: str
+
+
+class PatientMedicalHistoryBase(BaseModel):
+    patient_complaint: str
+    patient_diagnostics: str
+    patient_diet: str
+    patient_id: int
+
+class PatientMedicalHistoryCreate(PatientMedicalHistoryBase):
+    pass
+
+class PatientMedicalHistory(PatientMedicalHistoryBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+    class Config:
+        orm_mode = True
+
+        

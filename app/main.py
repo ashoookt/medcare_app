@@ -6,6 +6,10 @@ import models, schemas, crud
 from passlib.context import CryptContext
 from models import UserSignUp
 from schemas import LoginRequest
+from models import PatientMedicalHistory
+from schemas import PatientMedicalHistoryCreate
+from models import PatientMedicalHistory
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -75,3 +79,15 @@ def login_user(login: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return {"message": "Login successful"}
+
+@app.post("/patients")
+def add_patient(patient: schemas.PatientCreate, db: Session = Depends(get_db)):
+    return crud.create_patient(db, patient)
+
+@app.post("/medical-history/", response_model=schemas.PatientMedicalHistory)
+def create_medical_history_entry(
+    medical_history: PatientMedicalHistoryCreate,
+    db: Session = Depends(get_db)
+):
+    return crud.create_medical_history(db=db, medical_history=medical_history)
+

@@ -1,17 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:medcare/features/home_screen.dart';
 
-class MedicalHistoryScreen extends StatelessWidget {
+class MedicalHistoryScreen extends StatefulWidget {
   const MedicalHistoryScreen({super.key});
+
+  @override
+  State<MedicalHistoryScreen> createState() => _MedicalHistoryScreenState();
+}
+
+class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
+  final _complaintController = TextEditingController();
+  final _diagnosticsController = TextEditingController();
+  final _dietController = TextEditingController();
+
+  int patientId = 1; // Replace with actual patient ID
+  int? medicalRecordId; // Store the ID for update/delete
+
+  @override
+  void dispose() {
+    _complaintController.dispose();
+    _diagnosticsController.dispose();
+    _dietController.dispose();
+    super.dispose();
+  }
+
+  Future<void> saveMedicalHistory() async {
+    final response = await http.post(
+      Uri.parse(
+        'http://192.168.100.224:8000/medical-history/',
+      ), // Replace with your backend IP
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "patient_complaint": _complaintController.text,
+        "patient_diagnostics": _diagnosticsController.text,
+        "patient_diet": _dietController.text,
+        "patient_id": patientId,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        medicalRecordId = data["id"];
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Saved successfully")));
+    } else {
+      debugPrint("Save error: ${response.body}");
+    }
+  }
+
+  Future<void> updateMedicalHistory() async {
+    if (medicalRecordId == null) return;
+
+    final response = await http.put(
+      Uri.parse('http://<your-ip>:8000/medical_history/$medicalRecordId'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "patient_complaint": _complaintController.text,
+        "patient_diagnostics": _diagnosticsController.text,
+        "patient_diet": _dietController.text,
+        "patient_id": patientId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Updated successfully")));
+    } else {
+      debugPrint("Update error: ${response.body}");
+    }
+  }
+
+  Future<void> deleteMedicalHistory() async {
+    if (medicalRecordId == null) return;
+
+    final response = await http.delete(
+      Uri.parse('http://<your-ip>:8000/medical_history/$medicalRecordId'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _complaintController.clear();
+        _diagnosticsController.clear();
+        _dietController.clear();
+        medicalRecordId = null;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Deleted successfully")));
+    } else {
+      debugPrint("Delete error: ${response.body}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF163C2C), // Dark green background
+      backgroundColor: const Color(0xFF163C2C),
       body: SafeArea(
         child: Stack(
           children: [
-            // Curved green top background
             Positioned(
               top: 0,
               left: 0,
@@ -65,35 +159,45 @@ class MedicalHistoryScreen extends StatelessWidget {
                       const SizedBox(width: 24),
                     ],
                   ),
-
                   const SizedBox(height: 40),
-                  const CustomMultilineField(hint: 'Chief Complaint'),
-                  const CustomMultilineField(
-                    hint: 'Diagnosis & Procedures Performed',
+                  CustomMultilineField(
+                    hint: 'Chief Complaint',
+                    controller: _complaintController,
                   ),
-                  const CustomMultilineField(hint: 'Diet Type', lines: 12),
+                  CustomMultilineField(
+                    hint: 'Diagnosis & Procedures Performed',
+                    controller: _diagnosticsController,
+                  ),
+                  CustomMultilineField(
+                    hint: 'Diet Type',
+                    controller: _dietController,
+                    lines: 12,
+                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
+                    children: [
                       RoundedButton(
                         text: "Edit",
                         color: Colors.white,
                         textColor: Colors.black,
+                        onPressed: updateMedicalHistory,
                       ),
                       RoundedButton(
                         text: "Delete",
                         color: Colors.white,
                         textColor: Colors.black,
+                        onPressed: deleteMedicalHistory,
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  const RoundedButton(
+                  RoundedButton(
                     text: "Save",
                     color: Colors.black,
                     textColor: Colors.white,
                     fullWidth: true,
+                    onPressed: saveMedicalHistory,
                   ),
                 ],
               ),
@@ -105,11 +209,18 @@ class MedicalHistoryScreen extends StatelessWidget {
   }
 }
 
+// Updated to support controller
 class CustomMultilineField extends StatelessWidget {
   final String hint;
   final int lines;
+  final TextEditingController controller;
 
-  const CustomMultilineField({super.key, required this.hint, this.lines = 5});
+  const CustomMultilineField({
+    super.key,
+    required this.hint,
+    required this.controller,
+    this.lines = 5,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +232,7 @@ class CustomMultilineField extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
       ),
       child: TextFormField(
+        controller: controller,
         maxLines: lines,
         decoration: InputDecoration(
           hintText: hint,
@@ -137,6 +249,7 @@ class RoundedButton extends StatelessWidget {
   final Color color;
   final Color textColor;
   final bool fullWidth;
+  final VoidCallback? onPressed;
 
   const RoundedButton({
     super.key,
@@ -144,6 +257,7 @@ class RoundedButton extends StatelessWidget {
     required this.color,
     required this.textColor,
     this.fullWidth = false,
+    this.onPressed,
   });
 
   @override
@@ -152,7 +266,7 @@ class RoundedButton extends StatelessWidget {
       width: fullWidth ? double.infinity : 140,
       height: 45,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: textColor,
