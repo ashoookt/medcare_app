@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medcare/features/home_screen.dart';
 
 class VitalSigns extends StatelessWidget {
   const VitalSigns({super.key});
@@ -45,7 +46,15 @@ class VitalSignsScreen extends StatelessWidget {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Icon(Icons.arrow_back, color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
+                      },
+                      child: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
                   ),
                   const Text(
                     'Vital Signs & Monitoring',

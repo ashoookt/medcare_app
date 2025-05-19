@@ -54,6 +54,7 @@ class BottomNavbar extends StatelessWidget {
           ),
 
           // Notes Button
+          // Notes Button
           Positioned(
             right: 90,
             bottom: 22,
@@ -62,8 +63,8 @@ class BottomNavbar extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(30),
                 onTap: () {
-                  // Navigate to the NotesScreen
-                  Navigator.pushReplacement(
+                  // Navigate to the NotesScreen (use push for better transition)
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const NotesScreen(),

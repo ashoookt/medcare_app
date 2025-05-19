@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:medcare/features/home_screen.dart';
 
 class MedicationScreen extends StatelessWidget {
   const MedicationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MedicationsScreen(),
-    );
+    return MedicationsScreen();
   }
 }
 
@@ -45,7 +43,17 @@ class MedicationsScreen extends StatelessWidget {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Icon(Icons.arrow_back, color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
                   ),
                   const Text(
                     'Medications & Treatments',

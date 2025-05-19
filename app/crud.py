@@ -24,10 +24,10 @@ def create_signup(db: Session, user: UserSignUpCreate):
     hashed_password = pwd_context.hash(user.password)
 
     db_signup = UserSignUp(
-        student_id=match.student_id,  # use string ID from register
+        student_id=match.student_id,
         lorma_email=user.lorma_email,
         full_name=user.full_name,
-        password=hashed_password
+        student_password=hashed_password
     )
     db.add(db_signup)
     db.commit()

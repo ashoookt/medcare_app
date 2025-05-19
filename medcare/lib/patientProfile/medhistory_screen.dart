@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:medcare/features/home_screen.dart';
 
 class MedicalHistoryScreen extends StatelessWidget {
   const MedicalHistoryScreen({super.key});
@@ -37,7 +37,20 @@ class MedicalHistoryScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.arrow_back, color: Colors.white),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                      ),
                       const Spacer(),
                       const Text(
                         'Medical History &\nChief Complaint',
@@ -52,10 +65,12 @@ class MedicalHistoryScreen extends StatelessWidget {
                       const SizedBox(width: 24),
                     ],
                   ),
+
                   const SizedBox(height: 40),
                   const CustomMultilineField(hint: 'Chief Complaint'),
                   const CustomMultilineField(
-                      hint: 'Diagnosis & Procedures Performed'),
+                    hint: 'Diagnosis & Procedures Performed',
+                  ),
                   const CustomMultilineField(hint: 'Diet Type', lines: 12),
                   const SizedBox(height: 20),
                   Row(

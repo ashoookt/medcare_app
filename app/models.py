@@ -23,6 +23,6 @@ class UserSignUp(Base):
     student_id = Column(String(50), unique=True, nullable=False)  # same type as Register.student_id
     full_name = Column(String(100), nullable=False)
     lorma_email = Column(String(100), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)
+    student_password = Column(String(255), nullable=False)
 
 

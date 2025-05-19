@@ -43,6 +43,8 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     return crud.create_user(db, user)
 
+
+
 # Second screen: Sign up for login
 @app.post("/signup")
 def signup_user(user: schemas.UserSignUpCreate, db: Session = Depends(get_db)):
@@ -53,9 +55,8 @@ def signup_user(user: schemas.UserSignUpCreate, db: Session = Depends(get_db)):
     if existing_signup:
         raise HTTPException(status_code=400, detail="User already signed up.")
 
-    hashed_password = hash_password(user.password)
+    created = crud.create_signup(db, user)  # ONLY two arguments here
 
-    created = crud.create_signup(db, user, hashed_password)
     if not created:
         raise HTTPException(status_code=404, detail="No matching user in register. Please register first.")
 
@@ -66,7 +67,11 @@ def login_user(login: LoginRequest, db: Session = Depends(get_db)):
 
     user = db.query(UserSignUp).filter(UserSignUp.lorma_email == login.lorma_email).first()
 
-    if not user or not pwd_context.verify(login.password, user.password):
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # Verify password
+    if not pwd_context.verify(login.password, user.student_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return {"message": "Login successful"}

@@ -10,7 +10,7 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  final List<Map<String, String>> _notes = []; // List to store notes
+  final List<Map<String, String>> _notes = [];
 
   void _addNote(String title, String content) {
     setState(() {
@@ -23,7 +23,7 @@ class _NotesScreenState extends State<NotesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1A2A1D),
       body: HomeContent(notes: _notes, onNoteSaved: _addNote),
-      bottomNavigationBar: const BottomNavbar(), // Add the BottomNavbar here
+      bottomNavigationBar: const BottomNavbar(),
     );
   }
 }
@@ -56,22 +56,9 @@ class HomeContent extends StatelessWidget {
                       colors: [Color(0xFF2E4B3B), Color(0xFF1A2A1D)],
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 35,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Icon(Icons.menu, color: Colors.white, size: 30),
-                        Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ],
-                    ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 35),
+                    child: SizedBox(), // Icons removed as requested
                   ),
                 ),
               ),
@@ -100,9 +87,27 @@ class HomeContent extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _buildCard("DO’s", Alignment.topLeft, 220),
+                    _buildCard(
+                      "DO’s:\n"
+                      "- Wear proper uniform and ID at all times.\n"
+                      "- Practice proper hand hygiene.\n"
+                      "- Be punctual and respectful to patients.\n"
+                      "- Record accurate and honest documentation.\n"
+                      "- Follow protocols and instructor guidance.",
+                      Alignment.topLeft,
+                      220,
+                    ),
                     const SizedBox(height: 10),
-                    _buildCard("DON’Ts", Alignment.topLeft, 220),
+                    _buildCard(
+                      "DON’Ts:\n"
+                      "- Do not use your phone during clinical duty.\n"
+                      "- Never falsify records or vital signs.\n"
+                      "- Avoid gossiping or loud talking in wards.\n"
+                      "- Don’t ignore patient safety protocols.\n"
+                      "- Do not leave duty without permission.",
+                      Alignment.topLeft,
+                      220,
+                    ),
                     const SizedBox(height: 20),
                     const Text(
                       "Notes",
